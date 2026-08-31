@@ -1,0 +1,24 @@
+# Core
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.1
+scipy==1.13.1
+joblib==1.4.2
+
+# Training / experimentation
+mlflow==2.15.1
+
+# Visualization (EDA + dashboard)
+matplotlib==3.9.1
+seaborn==0.13.2
+plotly==5.23.0
+
+# Explainability
+shap==0.46.0
+
+# Testing
+pytest==8.3.2
+pytest-cov==5.0.0
+
+# Utilities
+python-dateutil==2.9.0.post0

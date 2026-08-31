@@ -1,0 +1,12 @@
+[
+  {
+    "decision": "PROMOTED",
+    "reason": "No existing champion \u2014 first model auto-promoted",
+    "challenger_name": "segmentation_model_DBSCAN_20260818_132228.joblib",
+    "challenger_algorithm": "DBSCAN",
+    "challenger_silhouette": 0.4056,
+    "challenger_db_index": 0.9463,
+    "champion_name": null,
+    "evaluated_at": "2026-08-18 13:22:28"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "model_name": "segmentation_model_DBSCAN_20260818_132228.joblib",
+  "algorithm": "DBSCAN",
+  "model_card_path": "segmentation_models\\model_card_DBSCAN_20260818_132228.json",
+  "promoted_at": "2026-08-18 13:22:28"
+}

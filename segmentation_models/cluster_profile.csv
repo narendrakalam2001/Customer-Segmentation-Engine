@@ -1,0 +1,4 @@
+cluster,Recency,Frequency,Monetary,AvgBasketValue,UniqueProducts,Tenure,customer_count,share_of_base,total_revenue,persona
+0,53.93,6.41,3025.9,24.49,87.48,216.75,2466,0.5685,7461862.28,Champions
+-1,94.47,3.07,2283.11,466.76,49.41,83.33,411,0.0947,938358.87,Champions
+1,157.15,1.0,333.32,30.4,21.05,1.0,1461,0.3368,486987.74,New Customers

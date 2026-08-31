@@ -1,0 +1,13 @@
+# Streamlit Community Cloud auto-detects a requirements.txt in the SAME
+# folder as the app's main file (monitoring/monitoring_dashboard.py).
+# This is a duplicate of ../requirements_dashboard.txt, kept in sync
+# manually — it exists purely so Streamlit Cloud installs the right,
+# lightweight dependency set instead of falling back to the repo-root
+# requirements.txt (which includes heavy training-only deps like mlflow
+# and shap that the dashboard doesn't need).
+streamlit>=1.40,<2.0
+plotly==5.23.0
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.1
+requests==2.32.3

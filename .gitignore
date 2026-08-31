@@ -1,0 +1,37 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+venv/
+.venv/
+*.egg-info/
+.coverage
+htmlcov/
+
+# ── IMPORTANT: Render + Streamlit Cloud have no training step ──────────────
+# They only `pip install` + run the app. That means the trained model,
+# its supporting artifacts, and the sample dataset MUST be committed to
+# the repo, or /predict and the dashboard will have nothing to load.
+# Do NOT add these back to .gitignore:
+#   - data/raw/*.csv                          (sample dataset for a working demo)
+#   - segmentation_models/*.joblib            (the champion model itself)
+#   - segmentation_models/latest_model.json   (registry pointer to the champion)
+#   - segmentation_models/model_card_*.json   (metrics the dashboard reads)
+#   - segmentation_models/*.csv               (cluster_profile, business_impact,
+#                                               reference_rfm_distribution, etc.)
+#   - segmentation_models/dendrogram.png      (only exists if Hierarchical won)
+# ─────────────────────────────────────────────────────────────────────────
+
+# Runtime-only prediction logs — regenerated automatically on first /predict
+# call, safe to exclude (excluding them keeps the repo from growing on every
+# demo run).
+!logs/*.csv
+!logs/.gitkeep
+
+# Local experiment tracking — not needed for deployment
+mlruns/
+
+# Test-only scratch directory created by pytest fixtures
+tests/_tmp_models/
+
+.DS_Store
