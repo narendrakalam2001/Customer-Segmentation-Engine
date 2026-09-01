@@ -92,7 +92,7 @@ def load_predictions():
 
 st.sidebar.header("⚙️ API Connection")
 api_base = st.sidebar.text_input(
-    "Segmentation API URL", value=st.session_state.get("api_base", "http://localhost:8000"),
+    "Segmentation API URL", value=st.session_state.get("api_base", "https://customer-segmentation-engine-4njy.onrender.com"),
     help="Base URL of `scripts/run_api.py` (FastAPI). Change this if the API runs on a different host/port.",
 )
 st.session_state["api_base"] = api_base

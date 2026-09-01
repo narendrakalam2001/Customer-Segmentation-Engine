@@ -46,8 +46,11 @@ Full leaderboard across all 4 algorithms (58 configs evaluated) is written to `s
 
 | Service | URL |
 |---|---|
-| API (Render) | `<add after deployment>` |
-| Dashboard (Streamlit Cloud) | `<add after deployment>` |
+| 🚀 **FastAPI (Swagger UI)** | [https://customer-segmentation-engine-4njy.onrender.com/docs] (https://customer-segmentation-engine-4njy.onrender.com/docs) |
+| 📊 **Monitoring Dashboard** | [https://customer-segmentation-engine-dashboard.streamlit.app] (https://customer-segmentation-engine-dashboard.streamlit.app) |
+| 📓 **EDA Notebook** | [notebooks/customer_segmentation_eda.ipynb](notebooks/customer_segmentation_eda.ipynb) |
+
+> ⚠️ Render free tier: first request may take 30–60 seconds (cold start).
 
 ---
 
@@ -164,6 +167,7 @@ Customer-Segmentation-Engine/
 ├── docker-compose.yml
 ├── Dockerfile
 ├── Dockerfile.dashboard
+├── monitoring_requirements.txt
 ├── render.yaml
 ├── requirements.txt
 ├── requirements_api.txt
@@ -325,23 +329,40 @@ Sidebar (always visible): configurable API URL, a manual "Try a Prediction" form
 - **AgglomerativeClustering has no native `.predict()`**: new customers are assigned via nearest-centroid to precomputed cluster means, not the algorithm's original linkage — a standard, documented workaround, but worth knowing if you inspect `segmentation_engine.py`.
 
 ---
+## 👨‍💻 About
 
-## 🔗 Related Portfolio Projects
+**Narendra Kalam** — MSc Computer Science (Gold Medalist — NASSCOM, Full Stack Data Science + AI)
 
-| Project | Domain | Type | Key Metric |
-|---|---|---|---|
-| Credit Card Fraud Detection | BFSI | Classification | F1 = 0.8962 (ExtraTrees) |
-| Credit Risk Prediction | BFSI | Classification | F1 = 0.9741, ROC-AUC = 0.9991 (LightGBM) |
-| Customer Churn Prediction | BFSI | Classification | — |
-| Store Sales Forecasting | Retail | Time Series | Kaggle competition |
-| **Customer Segmentation Engine** | **E-Commerce / BFSI** | **Unsupervised Clustering** | **Silhouette = 0.4056 (DBSCAN)** |
+> Building 20+ industry-level, end-to-end ML systems across all domains.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/narendra-kalam/)
+[![Kaggle](https://img.shields.io/badge/Kaggle-Profile-20BEFF?logo=kaggle)](https://www.kaggle.com/narendrakalam)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green?logo=github)](https://narendrakalam2001.github.io/)
+[![Email](https://img.shields.io/badge/Email-Contact-red?logo=gmail)](mailto:kalamnarendra2001@gmail.com)
+
+### Portfolio Projects
+
+| # | Project | Domain | Champion Model | Key Metric |
+|---|---|---|---|---|
+| 1 | Credit Card Fraud Detection | BFSI / Fintech | ExtraTrees | F1 = 0.8962 · 284K transactions |
+| 2 | Credit Risk Prediction | BFSI / Lending | LightGBM | F1 = 0.9741 · ROC-AUC = 0.9991 |
+| 3 | Customer Churn Prediction | Telecom / BFSI | CatBoost | F1 = 0.634 · Recall = 0.7312 |
+| 4 | House Price Prediction | Real Estate | CatBoost | RMSE = $20,128 · R² = 0.9053 |
+| 5 | Store Sales Forecasting | Retail / Supply Chain | LightGBM (Ensemble) | RMSLE = 0.3739 · R² = 0.9761 |
+| 6 | Energy Demand Forecasting | Energy / Utilities | ElasticNet | RMSE = 712.04 MW · R² = 0.9759 |
+| 7 | Stock Price & Risk Forecasting | Fintech / Capital Markets | Ridge | DirAcc = 53.44% · Sharpe = 0.80 |
+| 8 | Resume Screener AI | HR Tech | LightGBM | F1 = 0.7608 · Top-3 = 0.9416 |
+| 9 | ABSA Sentiment Analysis | E-Commerce / Banking | RidgeClassifier | Macro-F1 = 0.6212 · ROC-AUC = 0.823 |
+| 10 | Fake News Detector | Media Tech / Gov Tech | XGBoost | F1 = 0.9993 · ROC = 1.0000 |
+| 11 | BC5CDR Clinical NER | Biomedical NLP | BioBERT | F1 = 0.8847 · Chemical F1 = 0.9239 |
+| 12 | News Topic Modeling | Media Analytics | LDA (Gensim) | Cv = 0.6225 · Diversity = 0.92 |
+| 13 | Chest X-Ray Diagnosis | Healthcare AI | DenseNet121 | Mean AUC = 0.7864 · 14 classes |
+| 14 | Real-Time Object Detection | Computer Vision / Retail-Security | YOLOv8s | mAP50-95 = 0.5341 · 32 FPS |
+| 15 | Face Emotion Recognition | EdTech / Retail CX | CNN-from-scratch | Macro-F1 = 0.5950 · 7 classes |
+| 16 | **Customer Segmentation Engine** | **E-Commerce / BFSI** | **Unsupervised Clustering** | **Silhouette = 0.4056 (DBSCAN)** |
 
 ---
 
-## 👤 Author
-
-**Narendra Kalam** — MSc Computer Science (Gold Medalist, NASSCOM Full Stack Data Science + AI)
-Building a 20+ project industry-standard ML portfolio across Supervised ML, Time Series, NLP, Computer Vision, RNN, ANN, Unsupervised ML, and Recommendation Systems.
 
 ## 📄 License
 
