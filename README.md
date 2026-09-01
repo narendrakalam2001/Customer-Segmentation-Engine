@@ -1,25 +1,31 @@
-# 🛍️ Customer Segmentation Engine
+# 🛍️ Customer Segmentation Engine — RFM Clustering for Targeted Marketing
 
-![CI](https://img.shields.io/github/actions/workflow/status/narendrakalam/Customer-Segmentation-Engine/ci.yml?branch=main&label=CI)
-![Python](https://img.shields.io/badge/python-3.11-blue)
-![scikit--learn](https://img.shields.io/badge/scikit--learn-1.5-orange)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.112-teal)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.40+-red)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED)
-![Tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://img.shields.io/github/actions/workflow/status/narendrakalam2001/Customer-Segmentation-Engine/ci.yml?branch=main&label=CI)](https://github.com/narendrakalam2001/Customer-Segmentation-Engine/actions)
+[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://python.org)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-orange.svg)](https://scikit-learn.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.112-teal.svg)](https://fastapi.tiangolo.com)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.40+-red.svg)](https://streamlit.io)
+[![Champion](https://img.shields.io/badge/Champion-DBSCAN-brightgreen.svg)](https://scikit-learn.org/stable/modules/clustering.html#dbscan)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://docker.com)
+[![Tests](https://img.shields.io/badge/tests-43%20passing-brightgreen.svg)](tests/test_pipeline_core.py)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Domain:** E-Commerce / BFSI / Consulting &nbsp;·&nbsp; **Problem Type:** Unsupervised Clustering (RFM + KMeans / DBSCAN / Hierarchical / GMM) &nbsp;·&nbsp; **Dataset:** [UK Online Retail](https://www.kaggle.com/datasets/carrie1/ecommerce-data) — 541,909 transactions, 4,338 customers
-
-An end-to-end, production-grade unsupervised ML system that segments e-commerce customers into actionable personas (**Champions, Loyal, At Risk, Big Spenders, New, Hibernating**) using RFM analysis + a 4-algorithm clustering search — built to the same MLOps standard as the portfolio's banking-grade credit-risk and fraud-detection systems: Champion-Challenger promotion, PSI drift monitoring, leakage checks, and a live FastAPI + Streamlit stack.
+> **Domain:** E-Commerce / BFSI / Consulting
+> **Problem:** Unsupervised Clustering — segment customers with no ground-truth label to score against
+> **Dataset:** [UK Online Retail (Kaggle)](https://www.kaggle.com/datasets/carrie1/ecommerce-data) — 541,909 transactions · 4,338 customers after cleaning
+> **Industry Context:** Myntra · HDFC Bank · McKinsey-style growth teams — RFM segmentation turns "one email to everyone" into targeted, persona-specific campaigns
 
 ---
 
-## 🧭 Why This Project Matters
+## 💡 Why This Project Matters
 
-Retail, BFSI, and consulting growth teams (Myntra, HDFC Bank, McKinsey-style teams) don't blast every customer with the same email — they segment first. This project reproduces that workflow end-to-end: raw transaction logs → RFM features → a governed model-selection pipeline → a served, monitored API a marketing team could actually plug a CRM into.
+Retail and BFSI growth teams don't blast every customer with the same offer — they segment first, then target. This project reproduces that workflow end-to-end, adapted for a genuinely **unsupervised** problem (unlike the portfolio's supervised Fraud/Credit-Risk/Churn systems, there's no ground-truth label here):
 
-Unlike the portfolio's supervised projects (Fraud Detection, Credit Risk, Churn), **this is unsupervised learning** — there's no ground-truth label to score against. Every design decision here had to be adapted for that: model selection uses internal validity indices (Silhouette, Davies-Bouldin, Calinski-Harabasz) instead of F1/ROC-AUC, and the Champion-Challenger gates check segment-size usability instead of classification metrics.
+- **RFM feature engineering** (Recency, Frequency, Monetary + 3 behavioral features) converts a raw transaction log into one row per customer
+- A **4-algorithm model search** (KMeans, DBSCAN, Hierarchical/Agglomerative with dendrogram, GMM) is ranked by internal validity indices (Silhouette, Davies-Bouldin, Calinski-Harabasz) since there's nothing to compute F1/ROC-AUC against
+- A **business usability gate** rejects any config whose smallest segment is under 3% of customers — a mathematically "best" split that produces a 1% micro-segment is useless for a real campaign
+- Every retrain goes through a **3-gate Champion-Challenger** check adapted for clustering, with versioned model files so a rejected challenger can never silently overwrite the champion
+- Each segment is translated into an estimated **campaign ROI** — the same cost-sensitive-evaluation philosophy the portfolio's Fraud/Credit-Risk projects use, adapted from loss-avoidance to marketing spend
 
 ---
 
@@ -27,18 +33,19 @@ Unlike the portfolio's supervised projects (Fraud Detection, Credit Risk, Churn)
 
 *(Trained on the full 541,909-row dataset → 4,338 customers after cleaning)*
 
-| Metric | Value |
+| Metric | Score |
 |---|---|
-| Champion Algorithm | **DBSCAN** (eps=0.7, min_samples=10) |
-| Silhouette Score | **0.4056** |
-| Davies-Bouldin Index | **0.9463** (lower is better) |
-| Calinski-Harabasz Index | 3,428.31 |
-| Clusters found | 2 (+ 9.47% noise, unassigned) |
-| Bootstrap Stability | 0.3406 mean silhouette (10 resamples) |
-| Total Revenue Segmented | ₹8,887,209 |
-| Segments Surfaced | 3 (incl. noise bucket) |
+| **Champion Algorithm** | `DBSCAN (eps=0.7, min_samples=10)` |
+| **Silhouette Score** | `0.4056` |
+| **Davies-Bouldin Index** | `0.9463` (lower is better) |
+| **Calinski-Harabasz Index** | `3,428.31` |
+| **Clusters Found** | `2` (+ 9.47% noise, unassigned) |
+| **Bootstrap Stability** | `0.3406` mean silhouette (10 resamples) |
+| **Total Customers Segmented** | `4,338` |
+| **Total Revenue Segmented** | `₹8,887,209` |
+| **Algorithms Compared** | `58 configs across KMeans/DBSCAN/Hierarchical/GMM` |
 
-Full leaderboard across all 4 algorithms (58 configs evaluated) is written to `segmentation_models/model_experiment_results.csv` on every training run.
+Full leaderboard is written to `segmentation_models/model_experiment_results.csv` on every training run.
 
 ---
 
@@ -46,8 +53,8 @@ Full leaderboard across all 4 algorithms (58 configs evaluated) is written to `s
 
 | Service | URL |
 |---|---|
-| 🚀 **FastAPI (Swagger UI)** | [https://customer-segmentation-engine-4njy.onrender.com/docs] (https://customer-segmentation-engine-4njy.onrender.com/docs) |
-| 📊 **Monitoring Dashboard** | [https://customer-segmentation-engine-dashboard.streamlit.app] (https://customer-segmentation-engine-dashboard.streamlit.app) |
+| 🚀 **FastAPI (Swagger UI)** | [https://customer-segmentation-engine-4njy.onrender.com/docs](https://customer-segmentation-engine-4njy.onrender.com/docs) |
+| 📊 **Monitoring Dashboard** | [https://customer-segmentation-engine-dashboard.streamlit.app](https://customer-segmentation-engine-dashboard.streamlit.app) |
 | 📓 **EDA Notebook** | [notebooks/customer_segmentation_eda.ipynb](notebooks/customer_segmentation_eda.ipynb) |
 
 > ⚠️ Render free tier: first request may take 30–60 seconds (cold start).
@@ -59,63 +66,134 @@ Full leaderboard across all 4 algorithms (58 configs evaluated) is written to `s
 ![System Architecture](docs/architecture/system_architecture.svg)
 
 ```
-data/raw/data.csv (541K transactions)
-        │
-        ▼
- src/data_loader.py        — load + clean (drop nulls, cancellations, non-positive qty/price)
-        │
-        ▼
- src/preprocessing.py      — RFM engineering (Recency, Frequency, Monetary + behavioral)
-        │
-        ▼
- src/leakage_check.py      — snapshot leakage / duplicate-customer / null-value checks
-        │
-        ▼
- src/preprocessing.py      — Clipper (IQR) → Yeo-Johnson → StandardScaler
-        │
-        ▼
- src/model_tuning.py       — KMeans + DBSCAN + Hierarchical (+ dendrogram) + GMM search
-        │
-        ▼
- src/metrics.py            — Silhouette / Davies-Bouldin / Calinski-Harabasz + bootstrap stability
-        │
-        ▼
- src/evaluation.py         — cluster profiling → persona naming → business impact ($ ROI)
-        │
-        ▼
- src/model_loader.py       — Champion-Challenger (3-gate promotion) → segmentation_models/
-        │
-        ├──► serving/segmentation_api.py       (FastAPI: /predict /health /model_info)
-        └──► monitoring/monitoring_dashboard.py (Streamlit: alerts, champion-challenger, KPIs, PSI drift, live predictions)
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║           CUSTOMER SEGMENTATION ENGINE — 5-LAYER PRODUCTION SYSTEM               ║
+╠══════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                  ║
+║  ┌─────────────────────────────── DATA LAYER ──────────────────────────────┐     ║
+║  │ Online Retail CSV → Clean Transactions → RFM Engineering → Leakage Check│     ║
+║  │ 541,909 txns · 4,338 customers · Clipper(IQR) → Yeo-Johnson → Scaler    │     ║
+║  └───────────────────────────────────┬─────────────────────────────────────┘     ║
+║                                      ▼                                           ║
+║  ┌─────────────────────────── MODEL SEARCH PIPELINE ───────────────────────┐     ║
+║  │                                                                         │     ║
+║  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌────────────┐   │     ║
+║  │  │  KMeans      │  │  DBSCAN      │  │  Hierarchical│  │  GMM       │   │     ║
+║  │  │  k=2..10     │  │  eps×min_samp│  │  +dendrogram │  │  soft-clust│   │     ║
+║  │  └──────────────┘  └──────────────┘  └──────────────┘  └────────────┘   │     ║
+║  │                                                                         │     ║
+║  │  Business Gate: min segment ≥ 3% of customers → 58 configs evaluated    │     ║
+║  │                                                                         │     ║
+║  │  CHAMPION → DBSCAN  Silhouette=0.4056  Davies-Bouldin=0.9463            │     ║
+║  └───────────────────────────────────┬─────────────────────────────────────┘     ║
+║                                      ▼                                           ║
+║  ┌──────────────────────── CHAMPION-CHALLENGER ────────────────────────────┐     ║
+║  │                                                                         │     ║
+║  │  Gate 1: Silhouette improvement  ≥ 0.01   →  ✅ PASS / ❌ FAIL         │     ║
+║  │  Gate 2: Davies-Bouldin index    ≤ 1.20   →  ✅ PASS / ❌ FAIL         │     ║
+║  │  Gate 3: min segment share       ≥ 3%     →  ✅ PASS / ❌ FAIL         │     ║
+║  │                                                                         │     ║
+║  │  ALL gates pass → PROMOTED (latest_model.json updated, timestamped)     │     ║
+║  │  ANY gate fails → REJECTED (champion retained, challenger files purged) │     ║
+║  └───────────────────────────────────┬─────────────────────────────────────┘     ║
+║                                      ▼                                           ║
+║  ┌──────────────────────────── SERVING LAYER ──────────────────────────────┐     ║
+║  │                                                                         │     ║
+║  │  Model Loader → Segmentation Engine → Prediction Service → FastAPI      │     ║
+║  │                                                                         │     ║
+║  │  POST /predict     → RFM values      (→ cluster + persona + confidence) │     ║
+║  │  GET  /health       → API health check (→ {status, service})            │     ║
+║  │  GET  /model_info   → champion model card (→ metrics + personas)        │     ║
+║  └───────────────────────────────────┬─────────────────────────────────────┘     ║
+║                                      ▼                                           ║
+║  ┌─────────────────── MONITORING LAYER — STREAMLIT DASHBOARD ──────────────┐     ║
+║  │                                                                         │     ║
+║  │  Tab 1: Real-Time Alerts    → noise-ratio · min-share · PSI critical    │     ║
+║  │  Tab 2: Champion-Challenger → decision · 3-gate status · full history   │     ║
+║  │  Tab 3: KPIs + Charts       → revenue/count by persona · ROI · dendro   │     ║
+║  │  Tab 4: PSI Drift           → per-RFM-feature PSI vs training reference │     ║
+║  │  Tab 5: Recent Predictions  → audit log · live persona mix pie chart    │     ║
+║  │  Sidebar: Try a Prediction  → manual RFM form → instant persona         │     ║
+║  │  Sidebar: Simulate Traffic  → 3 scenarios, bootstrapped from real RFM   │     ║
+║  └─────────────────────────────────────────────────────────────────────────┘     ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
 
 ## 📸 Dashboard Screenshots
 
-| | |
-|---|---|
-| **Full Dashboard** | ![Dashboard](docs/screenshots/dashboard_full_ui.png) |
-| **Segment KPIs** | ![Segment KPIs](docs/screenshots/segment_kpis.png) |
-| **Revenue & Segment Centroids** | ![Revenue & Centroids](docs/screenshots/revenue_and_segment_centroids.png) |
-| **Business Impact / Campaign ROI** | ![Business Impact](docs/screenshots/business_impact.png) |
-| **Champion vs Challenger — Promotion History** | ![Champion History](docs/screenshots/current_champion_promotion_history.png) |
-| **Feature Drift (PSI)** | ![PSI Drift](docs/screenshots/feature_drift%28psi%29.png) |
-| **Recent Predictions** | ![Recent Predictions](docs/screenshots/recent_predictions.png) |
+### 🖥️ Full Dashboard UI
 
-> Note: `feature_drift(psi).png` has parentheses in the filename, which markdown link syntax can't parse literally — the embed above uses `%28`/`%29` URL-encoding to work around it. Renaming the file to `feature_drift_psi.png` (and updating the link) is cleaner if you ever re-export it.
+Real-time segmentation monitoring — sidebar live prediction + traffic simulation · Champion-Challenger system · KPI cards · PSI drift · prediction audit log.
+
+![Dashboard](docs/screenshots/dashboard_full_ui.png)
+
+---
+
+### 📊 Segment KPIs
+
+Total customers, total revenue segmented, and segment count at a glance, with customer-count-by-persona bar chart.
+
+![Segment KPIs](docs/screenshots/segment_kpis.png)
+
+---
+
+### 💰 Revenue & Segment Centroids
+
+Revenue by persona alongside an RFM centroid scatter (Recency vs Monetary, bubble size = segment size) for a quick visual read on where value concentrates.
+
+![Revenue & Centroids](docs/screenshots/revenue_and_segment_centroids.png)
+
+---
+
+### 📈 Business Impact / Campaign ROI
+
+Estimated campaign cost, expected incremental revenue, and ROI multiple per persona — the "so what" layer for a marketing stakeholder demo.
+
+![Business Impact](docs/screenshots/business_impact.png)
+
+---
+
+### 🏆 Champion vs Challenger — Promotion History
+
+Current champion card plus the full promotion history table with per-gate outcomes for every retrain.
+
+![Champion History](docs/screenshots/current_champion_promotion_history.png)
+
+---
+
+### 📉 Feature Drift (PSI) Monitoring
+
+Per-RFM-feature Population Stability Index vs the training reference distribution — colour-coded: green stable · orange moderate · red critical retrain.
+
+![PSI Drift](docs/screenshots/feature_drift%28psi%29.png)
+
+---
+
+### 📋 Recent Predictions Log
+
+Last 50 `/predict` calls with cluster, persona, and confidence, plus a live persona-mix pie chart.
+
+![Recent Predictions](docs/screenshots/recent_predictions.png)
+
+---
+
+## 📊 Training Reports
+
+| Training & Evaluation Summary | Live Traffic Simulation |
+|---|---|
+| ![Training Summary](docs/reports/training_model_summary.png) | ![Simulation](docs/reports/simulation.png) |
+
+| Test Coverage |
+|---|
+| ![Test Coverage](docs/reports/test_coverage.png) |
+
+---
 
 ## 🎬 System Demo
 
 ![System Demo](docs/gifs/system_demo.gif)
-
-## 📊 Reports
-
-| | |
-|---|---|
-| **Training Run Summary** | ![Training Summary](docs/reports/training_model_summary.png) |
-| **Live Traffic Simulation** | ![Simulation](docs/reports/simulation.png) |
-| **Test Coverage** | ![Test Coverage](docs/reports/test_coverage.png) |
 
 ---
 
@@ -123,102 +201,168 @@ data/raw/data.csv (541K transactions)
 
 ```
 Customer-Segmentation-Engine/
-├── .github/workflows/ci.yml        # GitHub Actions — pytest on push
-├── data/
-│   └── raw/                        # sample dataset included; swap in the full Kaggle CSV as data.csv
-├── docs/
-│   ├── architecture/                # system_architecture.svg
-│   ├── gifs/                        # system_demo.gif
-│   ├── reports/                     # training_model_summary.png, simulation.png, test_coverage.png
-│   └── screenshots/                 # dashboard_full_ui.png + 6 more
-├── logs/                            # prediction_logs.csv (created at runtime)
-├── monitoring/
-│   └── monitoring_dashboard.py      # Streamlit — 5 tabs + sidebar prediction/simulation
-├── notebooks/
-│   └── segmentation_eda.ipynb       # 25-step professional EDA + dendrogram
-├── scripts/
-│   ├── train_model.py
-│   ├── run_api.py
-│   ├── run_dashboard.py
-│   └── run_simulation.py
-├── segmentation_models/             # trained artifacts (created at runtime)
-├── services/
-│   └── prediction_service.py        # caching + prediction logging
+│
+├── src/                                    # Core ML system
+│   ├── config.py                           # thresholds, gates, paths
+│   ├── data_loader.py                      # load + clean transaction log
+│   ├── preprocessing.py                    # Clipper, RFM engineering, scaling pipeline
+│   ├── model_tuning.py                     # KMeans / DBSCAN / Hierarchical / GMM grid search
+│   ├── metrics.py                          # Silhouette, DB, CH, PSI, bootstrap stability
+│   ├── evaluation.py                       # cluster profiling, persona naming, business impact
+│   ├── leakage_check.py                    # snapshot/duplicate/null leakage checks
+│   ├── model_loader.py                     # Champion-Challenger 3-gate promotion system
+│   ├── model_card.py                       # Google Model Cards standard JSON
+│   ├── segmentation_engine.py              # inference: assign new customer to segment
+│   └── training_pipeline.py                # orchestrates the full pipeline
+│
 ├── serving/
-│   └── segmentation_api.py          # FastAPI: /predict /health /model_info
+│   └── segmentation_api.py                 # FastAPI: /predict · /health · /model_info
+│
+├── services/
+│   └── prediction_service.py               # caching + prediction logging
+│
+├── monitoring/
+│   ├── monitoring_dashboard.py             # Streamlit — 5 tabs + sidebar prediction/simulation
+│   └── requirements.txt                    # lightweight deps — auto-detected by Streamlit Cloud
+│
 ├── simulation/
-│   └── customer_simulator.py        # 3 scenarios, bootstrapped from real RFM distribution
-├── src/
-│   ├── config.py                    # thresholds, gates, paths
-│   ├── data_loader.py                # load + clean transaction log
-│   ├── preprocessing.py              # Clipper, RFM engineering, scaling pipeline
-│   ├── model_tuning.py               # KMeans / DBSCAN / Hierarchical / GMM grid search
-│   ├── metrics.py                    # Silhouette, DB, CH, PSI, bootstrap stability
-│   ├── evaluation.py                 # cluster profiling, persona naming, business impact
-│   ├── leakage_check.py              # snapshot/duplicate/null leakage checks
-│   ├── model_loader.py               # Champion-Challenger 3-gate promotion system
-│   ├── model_card.py                 # Google Model Cards standard JSON
-│   ├── segmentation_engine.py        # inference: assign new customer to segment
-│   └── training_pipeline.py          # orchestrates the full pipeline
+│   └── customer_simulator.py               # 3 scenarios, bootstrapped from real RFM distribution
+│
 ├── tests/
-│   ├── conftest.py                   # OMP_NUM_THREADS fix for sklearn/Windows
-│   ├── fixtures/                     # synthetic sample_retail.csv for CI
-│   └── test_pipeline_core.py         # 43 pytest tests
-├── docker-compose.yml
-├── Dockerfile
-├── Dockerfile.dashboard
-├── monitoring_requirements.txt
-├── render.yaml
-├── requirements.txt
-├── requirements_api.txt
-├── requirements_dashboard.txt
-└── runtime.txt
+│   ├── conftest.py                         # OMP_NUM_THREADS fix for sklearn/Windows
+│   ├── fixtures/                           # synthetic sample_retail.csv for CI
+│   └── test_pipeline_core.py               # 43 pytest unit tests — all passing
+│
+├── scripts/
+│   ├── train_model.py                      # python scripts/train_model.py
+│   ├── run_api.py                          # python scripts/run_api.py
+│   ├── run_dashboard.py                    # python scripts/run_dashboard.py
+│   └── run_simulation.py                   # python scripts/run_simulation.py --scenario churn_risk_drift --n 100 --send-api
+│
+├── notebooks/
+│   ├── customer_segmentation_eda.ipynb              # Professional EDA — 27 steps · dendrogram
+│   └── customer_segmentation_eda.html
+│
+├── data/
+│   ├── raw/
+│   │    └── README.md                      
+│   └── sample_online_retail.csv            # sample dataset — a working demo is possible without Kaggle
+│
+│
+├── segmentation_models/                    # Model artifacts — pushed to GitHub, required by Render/Streamlit
+│   ├── latest_model.json                   # Champion model registry
+│   ├── challenger_log.json                 # Full Champion-Challenger comparison history
+│   ├── model_card_*.json                   # Google Model Card JSON
+│   ├── *.joblib                            # the champion model itself
+│   ├── model_experiment_results.csv        # every config from every run
+│   ├── cluster_profile.csv                 # per-cluster RFM means + persona
+│   ├── business_impact.csv                 # campaign ROI per persona
+│   ├── reference_rfm_distribution.csv      # baseline for PSI drift + simulator bootstrap
+│   └── dendrogram.png                      # only present if Hierarchical won
+│
+├── docs/
+│   ├── architecture/
+│   │   └── system_architecture.svg         # 5-layer system architecture diagram
+│   ├── screenshots/
+│   │   ├── dashboard_full_ui.png
+│   │   ├── segment_kpis.png
+│   │   ├── revenue_and_segment_centroids.png
+│   │   ├── business_impact.png
+│   │   ├── current_champion_promotion_history.png
+│   │   ├── feature_drift(psi).png
+│   │   └── recent_predictions.png
+│   ├── reports/
+│   │   ├── training_model_summary.png
+│   │   ├── simulation.png
+│   │   └── test_coverage.png
+│   └── gifs/
+│       └── system_demo.gif
+│
+├── logs/
+│   └── prediction_logs.csv                 # API prediction audit log (auto-generated)
+│
+├── Dockerfile                               # FastAPI production image
+├── Dockerfile.dashboard                     # Streamlit dashboard container
+├── docker-compose.yml                       # API + Dashboard (ports 8000 + 8501)
+├── .github/workflows/ci.yml                # GitHub Actions — pytest on every push
+├── .gitignore
+├── LICENSE                                  # MIT License
+├── README.md                                # This file
+├── render.yaml                              # Render.com deployment config
+├── requirements.txt                         # full dev/training dependencies
+├── requirements_api.txt                     # lightweight API-only dependencies
+├── requirements_dashboard.txt                # dashboard deps (Docker build uses this copy)
+└── runtime.txt                              # Python version pin
 ```
 
 ---
 
 ## 🚀 Quickstart
 
-### 1. Setup
+### 1. Clone & Install
+
 ```bash
-git clone https://github.com/narendrakalam/Customer-Segmentation-Engine.git
+git clone https://github.com/narendrakalam2001/Customer-Segmentation-Engine.git
 cd Customer-Segmentation-Engine
 pip install -r requirements.txt
 ```
 
-### 2. Data
-A sample dataset is already included under `data/` for a quick smoke-test run. For real, reproducible metrics, download [Online Retail](https://www.kaggle.com/datasets/carrie1/ecommerce-data) from Kaggle and place it at `data/raw/data.csv`.
+### 2. Dataset
 
-### 3. Train
+```
+data/
+├── raw
+└── sample_online_retail.csv     ← sample dataset already included for a quick smoke-test run
+```
+
+For real, reproducible metrics, download [Online Retail](https://www.kaggle.com/datasets/carrie1/ecommerce-data) from Kaggle and replace `data/sample_online_retail.csv` with the full 541,909-row file.
+
+### 3. Train Model
+
 ```bash
 python scripts/train_model.py
 ```
-Runs the full pipeline: load → clean → RFM → leakage checks → preprocess → KMeans/DBSCAN/Hierarchical/GMM search → persona assignment → champion-challenger promotion. Artifacts land in `segmentation_models/`.
 
-### 4. Serve the API
+Expected output:
+```
+INFO  Raw data loaded: 541909 rows, 8 columns
+INFO  Cleaning: 541909 -> 392692 rows retained (72.5%), 4338 unique customers
+INFO  All 3 leakage checks PASSED
+INFO  Full search complete: 58 configs evaluated across 4 algorithms
+INFO  Best algorithm selected: DBSCAN (eps=0.7, min_samples=10)
+INFO  Bootstrap stability (10 iters): mean silhouette=0.3406
+TRAINING PIPELINE COMPLETE — decision: PROMOTED
+```
+
+### 4. Start API
+
 ```bash
 python scripts/run_api.py
-```
-```bash
-curl -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"Recency": 12, "Frequency": 8, "Monetary": 2450.50, "AvgBasketValue": 306.31, "UniqueProducts": 34, "Tenure": 210}'
+# API:  http://localhost:8000
+# Docs: http://localhost:8000/docs
 ```
 
-### 5. Run the monitoring dashboard
+### 5. Start Dashboard
+
 ```bash
 python scripts/run_dashboard.py
+# Dashboard: http://localhost:8501
 ```
-The sidebar has a **manual prediction form** (test a customer instantly) and a **"Simulate Live Traffic"** button (no CLI needed) alongside the 5 tabs (Alerts, Champion vs Challenger, KPIs & Charts, PSI Drift, Recent Predictions).
+The sidebar has a **manual prediction form** (test a customer instantly) and a **"Simulate Live Traffic"** button — no CLI needed to demo the full loop.
 
-### 6. Simulate traffic from the CLI (optional)
+### 6. Run Simulation
+
 ```bash
-python scripts/run_simulation.py --scenario churn_risk_drift --n 100 --send-api
+python scripts/run_simulation.py --scenario normal_traffic    --n 50  --send-api
+python scripts/run_simulation.py --scenario high_value_surge  --n 50  --send-api
+python scripts/run_simulation.py --scenario churn_risk_drift  --n 100 --send-api
 ```
 
-### 7. Run tests
+### 7. Run Tests
+
 ```bash
 pytest tests/ -v --cov=src --cov-report=term-missing
+# 43 collected · 43 passed · 0 failed
 ```
 
 ---
@@ -226,45 +370,104 @@ pytest tests/ -v --cov=src --cov-report=term-missing
 ## 🐳 Docker
 
 ```bash
-docker compose up --build      # API on :8000, Dashboard on :8501
-docker compose up api          # API only
-docker compose up dashboard    # Dashboard only
+# Start everything
+docker compose up --build
+
+# API only
+docker compose up api
+
+# Dashboard only
+docker compose up dashboard
+
+# Stop
+docker compose down
 ```
 
-## ☁️ Deployment
-
-`render.yaml` deploys the FastAPI service to [Render](https://render.com). `.github/workflows/ci.yml` runs the full 43-test pytest suite on every push/PR via GitHub Actions.
+| Service | URL |
+|---|---|
+| FastAPI + Swagger | `http://localhost:8000/docs` |
+| Streamlit Dashboard | `http://localhost:8501` |
 
 ---
 
-## 🔬 Technical Approach
+## 🌐 API Reference
 
-| Component | Standard Applied |
-|---|---|
-| RFM Engineering | Fixed `snapshot_date` (max invoice + 1 day) → Recency/Frequency/Monetary + AvgBasketValue/UniqueProducts/Tenure |
-| Outlier Handling | `Clipper` (IQR, fold=1.5) — fit on train, applied at inference |
-| Scaling | Yeo-Johnson power transform → StandardScaler (`clone()` per run, no shared fitted state) |
-| Model Search | KMeans (k=2-10) · DBSCAN (eps×min_samples grid) · Hierarchical (ward/average/complete + dendrogram) · GMM — 58 configs ranked by Silhouette |
-| Business Usability Gate | Best-silhouette config only wins if its smallest segment ≥ 3% of customers (prevents unusable micro-segments) |
-| Champion-Challenger | 3 gates: Silhouette improvement ≥0.01 · Davies-Bouldin ≤1.20 · min segment share ≥3% — versioned, timestamped model files so a rejected challenger can never overwrite the champion |
-| Drift Monitoring | Edge-based PSI per RFM feature, live traffic bootstrapped from the real training distribution vs training reference |
-| Leakage Checks | Snapshot leakage, duplicate-customer leakage, null/negative-value checks — run before every training call |
-| Explainability | Model Card JSON (Google Model Cards standard), persona rule engine documented in `src/evaluation.py` |
-| Experiment Tracking | `segmentation_models/model_experiment_results.csv` — every config from every run, MLflow-ready |
+### POST /predict — Assign a Customer's Segment
+
+```bash
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Recency": 12,
+    "Frequency": 8,
+    "Monetary": 2450.50,
+    "AvgBasketValue": 306.31,
+    "UniqueProducts": 34,
+    "Tenure": 210
+  }'
+```
+
+**Response:**
+```json
+{
+  "cluster": 0,
+  "persona": "Champions",
+  "confidence": 0.87,
+  "algorithm": "DBSCAN"
+}
+```
+
+### GET /health
+
+```json
+{"status": "ok", "service": "customer-segmentation-engine"}
+```
+
+### GET /model_info
+
+```json
+{
+  "algorithm": "DBSCAN",
+  "model_name": "segmentation_model_DBSCAN_20260818_132228.joblib",
+  "promoted_at": "2026-08-18 13:22:28",
+  "n_segments": 3,
+  "personas": ["Champions", "New Customers"],
+  "features_required": ["Recency", "Frequency", "Monetary", "AvgBasketValue", "UniqueProducts", "Tenure"]
+}
+```
 
 ---
 
-## 🏆 Champion-Challenger — 3-Gate Promotion (adapted for unsupervised learning)
+## 📊 All 4 Algorithms — Comparison
 
-Since clustering has no ground-truth label, gates use internal validity indices instead of F1/ROC-AUC:
+| Algorithm | Search Space | Silhouette | Davies-Bouldin | Notes |
+|---|---|---|---|---|
+| **DBSCAN** ⭐ | eps × min_samples grid | **0.4056** | **0.9463** | Champion — handles noise, no fixed k needed |
+| KMeans | k = 2..10 | 0.3811 | 1.0395 | Strong, interpretable baseline (k=2) |
+| Hierarchical (average) | ward / average / complete | 0.3718 | 1.0377 | Adds a dendrogram for visual k sanity-check |
+| GMM | k = 2..8 | — | — | Soft-clustering challenger, logged every run |
 
-| Gate | Condition |
-|---|---|
-| 1. Silhouette improvement | `challenger_silhouette − champion_silhouette ≥ 0.01` |
-| 2. Davies-Bouldin index | `challenger_DB ≤ 1.20` |
-| 3. Minimum segment size | smallest segment ≥ 3% of customer base |
+> DBSCAN won on Silhouette, but flags ~9.5% of customers as noise (unassigned) — see **Known Limitations** below before treating noise-cluster customers as a real target segment.
 
-Example from an actual retrain (`segmentation_models/challenger_log.json`):
+---
+
+## 🏆 Champion vs Challenger — 3-Gate Promotion
+
+Every new training run is compared against the production champion using **3 promotion gates**, adapted for unsupervised clustering (no ground-truth label to score F1/ROC-AUC against):
+
+| Gate | Condition | Rationale |
+|---|---|---|
+| Silhouette Improvement | Challenger must beat champion by ≥ 0.01 | Meaningful separation gain only |
+| Davies-Bouldin Index | ≤ 1.20 | Tight, well-separated clusters |
+| Minimum Segment Size | smallest segment ≥ 3% of customers | No unusable micro-segments in production |
+
+> **Why strict gates?** A segmentation model promoted with a worse or more fragmented split than the
+> champion could silently break a live marketing campaign — the 3-gate system ensures any new
+> algorithm or hyperparameter change is demonstrably better, on metrics that actually matter for
+> targeting, before going live.
+
+**Real run — rejected retrain (identical data, no improvement):**
+
 ```
 CHAMPION vs CHALLENGER
   Champion  : segmentation_model_DBSCAN_v1.joblib             sil=0.4056  DB=0.9463
@@ -272,7 +475,8 @@ CHAMPION vs CHALLENGER
 CHALLENGER REJECTED — champion retained
    Reason: Gates failed: silhouette improvement +0.0000 < 0.01
 ```
-Rejected challengers' `.joblib`/model-card files are deleted automatically to keep `segmentation_models/` clean — only the champion and its full metrics history persist.
+
+Rejected challengers' `.joblib`/model-card files are deleted automatically to keep `segmentation_models/` clean — only the champion and its full metrics history persist. Results logged to `segmentation_models/challenger_log.json` and visible in the dashboard's Champion vs Challenger tab.
 
 ---
 
@@ -290,45 +494,77 @@ Rejected challengers' `.joblib`/model-card files are deleted automatically to ke
 
 ## 📈 Monitoring Dashboard — 5 Sections
 
-| Tab | What it shows |
+| Section | What it shows |
 |---|---|
-| 🚨 Alerts | Silhouette/DB/stability metrics, noise-ratio + min-segment-share + PSI critical-drift alerts |
-| 🏆 Champion vs Challenger | Current champion card + full promotion history table |
-| 📊 KPIs & Charts | Customer count & revenue by persona, RFM centroid scatter, campaign ROI table, dendrogram (when Hierarchical is champion) |
-| 📉 PSI Drift | Per-RFM-feature PSI vs training reference, 🟢/🟡/🔴 status |
-| 🕒 Recent Predictions | Last 50 `/predict` calls + live persona mix pie chart |
-
-Sidebar (always visible): configurable API URL, a manual "Try a Prediction" form, and a "Simulate Live Traffic" button (3 scenarios) — no CLI needed to demo the full loop.
+| **1. Real-Time Alerts** | Silhouette/DB/stability metrics · noise-ratio > 15% · segment share < 3% · PSI critical drift |
+| **2. Champion-Challenger** | Latest decision badge · 3-gate status · full promotion history table |
+| **3. KPIs + Charts** | Customer count & revenue by persona · RFM centroid scatter · campaign ROI table · dendrogram (when Hierarchical is champion) |
+| **4. PSI Drift** | Per-RFM-feature PSI vs training reference, colour-coded bar |
+| **5. Recent Predictions** | Last 50 API calls · cluster · persona · confidence · live persona-mix pie chart |
+| **Sidebar** | Try a Prediction (manual RFM form) + Simulate Live Traffic (3 scenarios, no CLI needed) |
 
 ---
 
-## 🧪 Testing
+## 🧪 Test Coverage
 
-**43 pytest tests**, all passing (`pytest tests/ -v --cov=src`):
+```
+43 tests collected across pipeline stages:
 
-| Category | Tests |
-|---|---|
-| Data Loader | 7 |
-| RFM Engineering | 5 |
-| Leakage Checks | 6 |
-| Preprocessing | 4 |
-| Model Tuning & Metrics (incl. Hierarchical/PSI/bootstrap) | 11 |
-| Evaluation (scoring, profiling, personas, ROI) | 4 |
-| Champion-Challenger | 3 |
-| Segmentation Engine (inference) | 3 |
-| **Total** | **43** |
+  Data Loader                7  — raw load · required columns · missing file ·
+                                  drop nulls/cancellations/non-positive qty·price · row count reduced
+  RFM Engineering             5  — one row per customer · all features present ·
+                                  recency non-negative · monetary positive · snapshot after max invoice
+  Leakage Checks              6  — snapshot leakage pass/fail · duplicate customers pass/fail ·
+                                  negative/null RFM · run_all_checks raises on bad data
+  Preprocessing                4  — Clipper fit/transform · clone independence ·
+                                  fit_transform shape · scaled mean near zero
+  Model Tuning & Metrics      11  — KMeans/DBSCAN/Hierarchical search · linkage matrix ·
+                                  fcluster labels · validity metrics range · cluster shares ·
+                                  PSI zero/positive · bootstrap stability
+  Evaluation                   4  — RFM quantile scores · cluster profiling · persona
+                                  assignment · business impact ROI columns
+  Champion-Challenger          3  — first model auto-promoted · rejected on worse silhouette ·
+                                  challenger log persists
+  Segmentation Engine          3  — KMeans inference · Hierarchical inference (nearest-centroid) ·
+                                  confidence is a float
+
+Result: 43 passed · 0 failed
+```
+
+![Test Coverage](docs/reports/test_coverage.png)
 
 `tests/conftest.py` sets `OMP_NUM_THREADS=1` before scikit-learn loads, per scikit-learn's own recommendation — avoids a known KMeans/MKL memory-leak warning on Windows.
 
 ---
 
-## ⚠️ Known Limitations
+## 🧠 Technical Standards
+
+| Component | Implementation |
+|---|---|
+| **RFM Engineering** | Fixed `snapshot_date` (max invoice + 1 day) → Recency/Frequency/Monetary + AvgBasketValue/UniqueProducts/Tenure |
+| **Outlier Handling** | `Clipper` (IQR, fold=1.5) — fit on train, applied at inference |
+| **Scaling** | Yeo-Johnson power transform → StandardScaler (`clone()` per run, no shared fitted state) |
+| **Model Search** | KMeans (k=2-10) · DBSCAN (eps×min_samples grid) · Hierarchical (ward/average/complete + dendrogram) · GMM — 58 configs ranked by Silhouette |
+| **Business Usability Gate** | Best-silhouette config only wins if its smallest segment ≥ 3% of customers |
+| **Champion-Challenger** | 3-gate: Silhouette improvement ≥0.01 · Davies-Bouldin ≤1.20 · min segment share ≥3% — timestamped model files, rejected challengers can never overwrite the champion |
+| **Drift Monitoring** | Edge-based PSI per RFM feature — live traffic bootstrapped from the real training distribution vs training reference |
+| **Leakage Detection** | Snapshot leakage · duplicate-customer leakage · null/negative-value checks — run before every training call |
+| **Explainability** | Model Card JSON (Google Model Cards standard) · persona rule engine documented in `src/evaluation.py` |
+| **Experiment Tracking** | `segmentation_models/model_experiment_results.csv` — every config from every run, MLflow-ready |
+| **CI/CD** | GitHub Actions — pytest on every push · coverage report |
+| **Deployment** | Render.com (FastAPI) + Streamlit Cloud (Dashboard) |
+
+---
+
+## ⚠️ Known Limitations & Practical Considerations
 
 - **DBSCAN noise persona edge case**: the current champion is DBSCAN, and ~9.5% of customers fall into the noise cluster (label `-1`). At inference, `segmentation_engine.py` is designed to label these as `"Unclassified"` — but the persona rule engine in `evaluation.py` runs on *all* cluster rows produced at training time, including the noise cluster's centroid, which can assign it a real persona label (e.g. "Champions") instead. This means the "9.5% of customers get Unclassified" guarantee mentioned during training doesn't fully hold today — worth a follow-up fix (special-case cluster `-1` in `assign_personas()`) before treating noise-cluster customers as a real target segment in a live campaign.
 - **Small-sample PSI sensitivity**: PSI values can look inflated on very small customer bases (the bundled CI fixture has only 120 synthetic customers) — this is a known quantile-binning artifact, not a bug; it settles down at the real dataset's scale (4,338 customers).
 - **AgglomerativeClustering has no native `.predict()`**: new customers are assigned via nearest-centroid to precomputed cluster means, not the algorithm's original linkage — a standard, documented workaround, but worth knowing if you inspect `segmentation_engine.py`.
+- **Clusters are not stable across retrains**: cluster IDs (0, 1, 2...) can be reassigned on every retrain since this is unsupervised — personas are re-derived from RFM rules each time rather than relying on a fixed label mapping, but any downstream system caching a raw `cluster` ID (instead of the `persona` string) should re-fetch after every promotion.
 
 ---
+
 ## 👨‍💻 About
 
 **Narendra Kalam** — MSc Computer Science (Gold Medalist — NASSCOM, Full Stack Data Science + AI)
@@ -359,11 +595,20 @@ Sidebar (always visible): configurable API URL, a manual "Try a Prediction" form
 | 13 | Chest X-Ray Diagnosis | Healthcare AI | DenseNet121 | Mean AUC = 0.7864 · 14 classes |
 | 14 | Real-Time Object Detection | Computer Vision / Retail-Security | YOLOv8s | mAP50-95 = 0.5341 · 32 FPS |
 | 15 | Face Emotion Recognition | EdTech / Retail CX | CNN-from-scratch | Macro-F1 = 0.5950 · 7 classes |
-| 16 | **Customer Segmentation Engine** | **E-Commerce / BFSI** | **Unsupervised Clustering** | **Silhouette = 0.4056 (DBSCAN)** |
+| 16 | **Customer Segmentation Engine** | **E-Commerce / BFSI** | **DBSCAN (Unsupervised)** | **Silhouette = 0.4056** |
 
 ---
 
+## 📚 References
+
+- Fader, Hardie & Lee (2005) — [RFM and CLV: Using Iso-Value Curves for Customer Base Analysis](https://www.brucehardie.com/papers/rfm_clv_2005-02-16.pdf)
+- Ester et al. (1996) — [A Density-Based Algorithm for Discovering Clusters (DBSCAN)](https://www.aaai.org/Papers/KDD/1996/KDD96-037.pdf)
+- Rousseeuw (1987) — [Silhouettes: A Graphical Aid to the Interpretation and Validation of Cluster Analysis](https://www.sciencedirect.com/science/article/pii/0377042787901257)
+- Davies & Bouldin (1979) — [A Cluster Separation Measure](https://ieeexplore.ieee.org/document/4766909)
+- UCI / Kaggle Online Retail Dataset — [Kaggle](https://www.kaggle.com/datasets/carrie1/ecommerce-data)
+
+---
 
 ## 📄 License
 
-MIT — see `LICENSE` (add one at the repo root if it isn't there yet; it wasn't present in the current folder listing).
+MIT License — see [LICENSE](LICENSE)
